@@ -15,6 +15,7 @@ class EchoHandler(SocketServer.DatagramRequestHandler):
     """
 
     def handle(self):
+        IP_CLIENT = str(self.client_address[0])
         while 1:
             line = self.rfile.read()
             if not line:
@@ -30,8 +31,9 @@ class EchoHandler(SocketServer.DatagramRequestHandler):
                 respuesta += "SIP/2.0 200 OK\r\n\r\n"
                 self.wfile.write(respuesta)
             elif Method == 'ACK':
-                aEjecutar = './mp32rtp -i 127.0.0.1 -p 23032 < ' + sys.argv[3]
+                aEjecutar = './mp32rtp -i ' + IP_CLIENT + ' -p 23032 < ' + fichero
                 print "Vamos a ejecutar", aEjecutar
+                os.system('chmod 755 mp32rtp')
                 os.system(aEjecutar)
                 print(" Ha terminado la ejecución de fich de audio")
             elif Method == 'BYE':
@@ -43,7 +45,7 @@ class EchoHandler(SocketServer.DatagramRequestHandler):
 if __name__ == "__main__":
     try:
         LISTEN_PORT = int(sys.argv[2])
-        sys.argv[3]
+        fichero = sys.argv[3]
     except IndexError:
         sys.exit("Usage: python server.py IP port audio_file")
     # Creamos servidor de eco y escuchamos
